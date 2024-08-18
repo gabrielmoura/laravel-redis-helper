@@ -1,0 +1,33 @@
+{
+    "name": "gabrielmoura/laravel-redis-helper",
+    "description": "A Redis Helper for Laravel",
+    "autoload": {
+        "psr-4": {
+            "Gabrielmoura\\RedisHelper\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Gabriel Moura",
+            "email": "gmouradev96@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "laravel/pint": "^1.17",
+        "phpstan/phpstan": "2.0.x-dev"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Gabrielmoura\\RedisHelper\\RedisHelperServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^8.2",
+        "ext-redis": "*",
+        "illuminate/support": "*",
+        "illuminate/redis": "*"
+    }
+}
