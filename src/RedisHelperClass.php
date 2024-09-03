@@ -93,7 +93,7 @@ class RedisHelperClass
      */
     public function deleteArray(string $key): bool
     {
-        return $this->redis->command('DEL', [$key]);
+        return $this->delete($key);
     }
 
     /**
@@ -127,7 +127,7 @@ class RedisHelperClass
      */
     public function deleteList(string $key): bool
     {
-        return $this->redis->command('DEL', [$key]);
+        return $this->delete($key);
     }
 
     /**
@@ -175,7 +175,7 @@ class RedisHelperClass
      */
     public function deleteSet(string $key): bool
     {
-        return $this->redis->command('DEL', [$key]);
+        return $this->delete($key);
     }
 
     /**
@@ -216,6 +216,11 @@ class RedisHelperClass
      * @description Deleta o conjunto ordenado
      */
     public function deleteSortedSet(string $key): bool
+    {
+        return $this->delete($key);
+    }
+
+    private function delete(string $key): bool
     {
         return $this->redis->command('DEL', [$key]);
     }
@@ -259,7 +264,7 @@ class RedisHelperClass
      */
     public function deleteBit(string $key): bool
     {
-        return $this->redis->command('DEL', [$key]);
+        return $this->delete($key);
     }
 
     // geo
@@ -303,7 +308,7 @@ class RedisHelperClass
      */
     public function deleteGeo(string $key): bool
     {
-        return $this->redis->command('DEL', [$key]);
+        return $this->delete($key);
     }
 
     /** HyperLog */
@@ -329,7 +334,7 @@ class RedisHelperClass
      */
     public function deleteHyperLogLog(string $key): bool
     {
-        return $this->redis->command('DEL', [$key]);
+        return $this->delete($key);
     }
 
     /**
@@ -400,5 +405,31 @@ class RedisHelperClass
     public function getMemoryStats(): array
     {
         return $this->redis->command('MEMORY', ['STATS']);
+    }
+
+    /**
+     * @description Busca e deleta as chaves conforme o padrão
+     * @description Se $returnKeys for true, retorna as chaves deletadas
+     * @description Se $returnKeys for false, retorna true
+     */
+    public function keysDel(string $pattern, bool $returnKeys = false): bool|array
+    {
+        $luaScript = <<<'LUA'
+local keys = redis.call("KEYS", ARGV[1])
+
+if next(keys) == nil then
+    return 0
+end
+
+redis.call("DEL", unpack(keys))
+
+if ARGV[2] == "1" then
+    return keys
+end
+
+return 1
+LUA;
+
+        return $this->redis->eval($luaScript, 0, $pattern, $returnKeys);
     }
 }

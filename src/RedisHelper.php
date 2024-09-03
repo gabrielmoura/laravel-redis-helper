@@ -51,6 +51,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool setExpireAt(string $key, string $timestamp)
  * @method static int getMemory(string $key)
  * @method static array getMemoryStats()
+ * @method static array|bool keysDel(string $pattern, bool $returnKeys = false)
  */
 class RedisHelper extends Facade
 {
