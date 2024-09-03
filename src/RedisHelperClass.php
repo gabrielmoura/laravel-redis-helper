@@ -414,22 +414,30 @@ class RedisHelperClass
      */
     public function keysDel(string $pattern, bool $returnKeys = false): bool|array
     {
-        $luaScript = <<<'LUA'
-local keys = redis.call("KEYS", ARGV[1])
+        return $this->redis->eval(<<<'LUA'
+local cursor = "0"
+local deletedKeys = {}
+local keys
 
-if next(keys) == nil then
-    return 0
-end
+repeat
+    cursor, keys = unpack(redis.call("SCAN", cursor, "MATCH", ARGV[1], "COUNT", 1000))
 
-redis.call("DEL", unpack(keys))
+    if #keys > 0 then
+        redis.call("DEL", unpack(keys))
+        if ARGV[2] == "1" then
+            for i, key in ipairs(keys) do
+                table.insert(deletedKeys, key)
+            end
+        end
+    end
+
+until cursor == "0"
 
 if ARGV[2] == "1" then
-    return keys
+    return deletedKeys
 end
 
 return 1
-LUA;
-
-        return $this->redis->eval($luaScript, 0, $pattern, $returnKeys);
+LUA, 0, $pattern, $returnKeys);
     }
 }
