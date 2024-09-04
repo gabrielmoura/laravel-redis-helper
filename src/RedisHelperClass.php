@@ -416,4 +416,12 @@ class RedisHelperClass
     {
         return $this->redis->eval(LuaScript::KEYS_DEL, 0, $pattern, $returnKeys);
     }
+
+    /**
+     * @description Incrementa um contador e verifica se atingiu o limite
+     */
+    public function counterCheck(string $key, int $limit, int $ttl = 0): bool
+    {
+        return $this->redis->eval(LuaScript::COUNTER_CHECK, 1, $key, $limit, $ttl);
+    }
 }

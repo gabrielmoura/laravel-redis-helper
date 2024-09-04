@@ -8,9 +8,15 @@ class LuaScript
      * @description Incrementa um contador e verifica se atingiu o limite
      */
     public const COUNTER_CHECK = <<<'LUA'
--- Incrementa um contador e verifica se atingiu o limite
+-- Incrementa um contador e verifica se atingiu o limite, com tempo de expiração opcional
 redis.call('INCR', KEYS[1])
 local count = tonumber(redis.call('GET', KEYS[1]))
+
+-- Se o segundo argumento for um número maior que zero, define o tempo de expiração
+if tonumber(ARGV[2]) > 0 then
+    redis.call('EXPIRE', KEYS[1], ARGV[2])
+end
+
 return count <= tonumber(ARGV[1])
 LUA;
 
